@@ -1,16 +1,15 @@
 const API_URL = "https://user-json-aa7y.onrender.com/users";
 
 
-export const fetchUsers = async () => {
+export const fetchUsers = async (page = 1, limit = 10) => {
   try {
-    const response = await fetch(`${API_URL}`);
+    const response = await fetch(`${API_URL}?_page=${page}&_per_page=${limit}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch users');
     }
 
-    const data = await response.json();
-    console.log("data",data);   
+    const data = await response.json();  
     return data;
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -35,6 +34,7 @@ export const addUser = async (user) => {
 
     const data = await response.json();
     return data;
+    console.log("user added", data);
   } catch (error) {
     console.error("Error adding user:", error);
     throw error;  

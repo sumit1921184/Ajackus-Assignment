@@ -10,28 +10,37 @@ import {
   Td,
   IconButton,
   Skeleton,
+  useToast,
   useBreakpointValue,
-  Grid,
+  Flex,
 } from "@chakra-ui/react";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { EditIcon, DeleteIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { useModal } from "../contexts/modalContext";
 import UserForm from "./UserForm";
-import { deleteUser, fetchUsers, updateUser } from "../api/userService";
+import { addUser, deleteUser, fetchUsers, updateUser } from "../api/userService";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const { showModal, onClose } = useModal();
+  const [update, setUpdate] = useState(true);
+  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const usersPerPage = 10;
 
+  const toast = useToast()
   useEffect(() => {
     const loadUsers = async () => {
       setLoading(true);
-      const usersData = await fetchUsers(); 
-      setUsers(usersData);
+      const usersData = await fetchUsers(currentPage, usersPerPage);
+      setTotalUsers(() => parseInt(usersData.items))
+      setUsers(usersData.data);
       setLoading(false);
     };
     loadUsers();
-  }, []);
+  }, [update, currentPage]);
+
 
   const handleDelete = (id) => {
     showModal({
@@ -41,7 +50,29 @@ const UserList = () => {
         {
           label: "Delete User",
           colorScheme: "red",
-          onClick: () => deleteUser(id), 
+          onClick: async () => {
+            try {
+              await deleteUser(id);
+
+              toast({
+                title: "User Deleted",
+                description: "The user has been deleted successfully.",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
+
+              setUpdate((prev) => !prev); // Refresh the list
+            } catch (error) {
+              toast({
+                title: "Error",
+                description: error.response?.data?.message || "Failed to delete user.",
+                status: "error",
+                duration: 4000,
+                isClosable: true,
+              });
+            }
+          },
           closeOnClick: true,
         },
         {
@@ -50,55 +81,62 @@ const UserList = () => {
           onClick: onClose,
           closeOnClick: true,
         },
-        
       ],
-      onSave: async () => {
-        const isDeleted = await deleteUser(id); 
-        if (isDeleted) {
-          setUsers(users.filter((user) => user.id !== id));
-        }
-      },
     });
   };
+
 
   const handleEdit = (user) => {
     showModal({
       heading: "Edit User",
       body: (
-        <UserForm 
-          user={user} 
+        <UserForm
+          user={user}
           onSave={async (data) => {
-            await updateUser(user.id, data); 
-          }} 
+            await updateUser(user.id, data);
+            setUpdate((prev) => !prev);
+          }}
+          onCancel={onClose}
         />
       ),
-      
+
     });
+
   };
-  
+
+
 
   const handleAddUser = () => {
     showModal({
       heading: "Add User",
-      body: <UserForm />,
-      buttons: [
-        {
-          label: "Add User",
-          colorScheme: "blue",
-          onClick: () => console.log("User added"), 
-          closeOnClick: true,
-        },
-        
-      ],
+      body: (
+        <UserForm
+          user={null}
+          onSave={async (data) => {
+            const newUser = await addUser(data);
+            if (newUser) {
+              setUpdate((prev) => !prev);
+            }
+          }}
+          onCancel={onClose}
+        />
+      ),
     });
+
+
   };
+
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
+
+  const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
   return (
     <Box
       w="90vw"
       h="100vh"
       overflow="hidden"
-      m={4} // Adds margin to the whole container
+      m={4}
       p={4}
       boxSizing="border-box"
       display="flex"
@@ -108,24 +146,25 @@ const UserList = () => {
       <Button colorScheme="blue" onClick={handleAddUser} mb={4}>
         Add User
       </Button>
+
       <Box
-        maxHeight="calc(100vh - 200px)" 
+        maxHeight="calc(100vh - 200px)"
         overflowY="auto"
-        
         border="1px solid #ddd"
         borderRadius="md"
       >
         <Table variant="simple">
           <Thead position="sticky" top="0" bg="white" zIndex={1}>
             <Tr>
-              <Th>Id</Th>
-              <Th>First Name</Th>
-              <Th>Last Name</Th>
-              <Th>Email</Th>
-              <Th>Department</Th>
-              <Th>Action</Th>
+              <Th width={isMobile ? "15%" : "10%"}>Id</Th>
+              <Th width={isMobile ? "25%" : "15%"}>First Name</Th>
+              <Th width={isMobile ? "25%" : "15%"}>Last Name</Th>
+              <Th width={isMobile ? "35%" : "20%"}>Email</Th>
+              <Th width={isMobile ? "35%" : "20%"}>Department</Th>
+              <Th width={isMobile ? "30%" : "20%"}>Action</Th>
             </Tr>
           </Thead>
+
           <Tbody>
             {loading ? (
               Array.from({ length: 10 }).map((_, index) => (
@@ -167,6 +206,26 @@ const UserList = () => {
           </Tbody>
         </Table>
       </Box>
+
+      <Flex justify="center " align="center" mt={4} gap={5}>
+        <IconButton
+          icon={<ChevronLeftIcon />}
+          onClick={handlePrevious}
+          isDisabled={currentPage === 1}
+          aria-label="Previous Page"
+          colorScheme="blue"
+        />
+        <Box>
+          Page {currentPage} of {totalPages}
+        </Box>
+        <IconButton
+          icon={<ChevronRightIcon />}
+          onClick={handleNext}
+          isDisabled={currentPage === totalPages}
+          aria-label="Next Page"
+          colorScheme="blue"
+        />
+      </Flex>
     </Box>
   );
 };

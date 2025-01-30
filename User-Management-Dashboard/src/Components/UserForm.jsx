@@ -1,9 +1,19 @@
 import { useForm } from "react-hook-form";
 import React, { useEffect } from "react";
-import { Input, FormLabel, FormControl, FormErrorMessage, Button, Flex, Box } from "@chakra-ui/react";
+import { Input, FormLabel, FormControl, FormErrorMessage, Button, Flex, Box, useToast, useModal } from "@chakra-ui/react";
+
 
 const UserForm = ({ user, onSave, onCancel }) => {
-  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    reset
+  } = useForm();
+
+
+  const toast = useToast();
 
   useEffect(() => {
     if (user) {
@@ -11,68 +21,104 @@ const UserForm = ({ user, onSave, onCancel }) => {
       setValue("lastName", user.lastName);
       setValue("email", user.email);
       setValue("department", user.department || "");
+    } else {
+      reset();
     }
-  }, [user, setValue]);
-
-  
-  useEffect(() => {
-    if (!user) {
-      reset(); 
-    }
-  }, [user, reset]);
+  }, [user, setValue, reset]);
 
   const onSubmit = async (data) => {
-    await onSave(data);
+    try {
+      await onSave(data);
+
+      toast({
+        title: "Success",
+        description: "User saved successfully!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Delay closing form slightly to allow toast to appear first
+      setTimeout(() => {
+        reset(); // Reset the form
+        onCancel(); // Close the form
+      }, 500);
+
+    } catch (error) {
+      console.error("Error saving user:", error);
+
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message; // Show server error message
+      }
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+
+      // Do NOT close the form on error
+    }
   };
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-     
-      <FormControl isInvalid={errors.firstName} isRequired>
+
+      <FormControl isInvalid={!!errors.firstName} mb={4}>
         <FormLabel htmlFor="firstName">First Name</FormLabel>
-        <Input 
-          id="firstName" 
-          {...register("firstName", { required: "First Name is required" })} 
-          placeholder="First Name" 
+        <Input
+          id="firstName"
+          {...register("firstName", { required: "First Name is required" })}
+          placeholder="First Name"
         />
         <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
       </FormControl>
 
-      
-      <FormControl isInvalid={errors.lastName} mt={4} isRequired>
+
+      <FormControl isInvalid={!!errors.lastName} mb={4}>
         <FormLabel htmlFor="lastName">Last Name</FormLabel>
-        <Input 
-          id="lastName" 
-          {...register("lastName", { required: "Last Name is required" })} 
-          placeholder="Last Name" 
+        <Input
+          id="lastName"
+          {...register("lastName", { required: "Last Name is required" })}
+          placeholder="Last Name"
         />
         <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
       </FormControl>
 
-      
-      <FormControl isInvalid={errors.email} mt={4} isRequired>
+
+      <FormControl isInvalid={!!errors.email} mb={4}>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input
           id="email"
-          {...register("email", { 
-            required: "Email is required", 
-            pattern: { value: /\S+@\S+\.\S+/, message: "Email is invalid" } 
+          {...register("email", {
+            required: "Email is required",
+            pattern: { value: /\S+@\S+\.\S+/, message: "Email is invalid" }
           })}
           placeholder="Email"
         />
         <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
       </FormControl>
 
-      
-      <FormControl mt={4} isRequired>
+
+      <FormControl isInvalid={!!errors.department} mb={4}>
         <FormLabel htmlFor="department">Department</FormLabel>
-        <Input id="department" {...register("department", { required: "Department is required" })} placeholder="Department" />
+        <Input
+          id="department"
+          {...register("department", { required: "Department is required" })}
+          placeholder="Department"
+        />
+        <FormErrorMessage>{errors.department?.message}</FormErrorMessage>
       </FormControl>
 
-      
+
       <Flex mt={4} justify="flex-end">
         <Box mr={4}>
-          <Button colorScheme="gray" onClick={onCancel}>Cancel</Button>
+          <Button colorScheme="gray" onClick={() => { reset(); onCancel(); }}>Cancel</Button>
         </Box>
         <Button colorScheme="blue" type="submit" isDisabled={Object.keys(errors).length > 0}>
           Save Changes
