@@ -4,6 +4,7 @@ import './App.css'
 import { Box } from '@chakra-ui/react';
 import { fetchUsers } from './api/userService';
 import { use } from 'react';
+import UserList from './Components/UserList';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -15,10 +16,14 @@ function App() {
 
   return (
     <>
-      <Box className=' text-red-500 text-4xl text-center'>
-        hello world
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems={"center"}>
+        <UserList />
       </Box>
-      
+
     </>
   )
 }

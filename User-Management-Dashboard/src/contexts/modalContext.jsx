@@ -1,31 +1,25 @@
-
-import React, { createContext, useContext, useState } from "react";
-import { useDisclosure } from "@chakra-ui/react";
+import { createContext, useContext, useState } from "react";
+import React from 'react';
 
 const ModalContext = createContext();
 
-const ModalProvider=({ children })=> {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalContent, setModalContent] = useState({
-    heading: "",
-    body: null,
-    onSave: () => {},
-  });
+export const useModal = () => useContext(ModalContext);
 
-  const showModal = ({ heading, body, onSave }) => {
-    setModalContent({ heading, body, onSave });
-    onOpen();
+ const ModalProvider = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
+
+  const showModal = (content) => {
+    setModalContent(content);
+    setIsOpen(true);
   };
 
+  const closeModal = () => setIsOpen(false);
+
   return (
-    <ModalContext.Provider value={{ isOpen, onClose, showModal, modalContent }}>
+    <ModalContext.Provider value={{ isOpen, modalContent, onClose: closeModal, showModal }}>
       {children}
     </ModalContext.Provider>
   );
-}
-
-export function useModal() {
-  return useContext(ModalContext);
-}
-
+};
 export default ModalProvider;
