@@ -61,7 +61,6 @@ const UserForm = ({ user, onSave, onCancel }) => {
         isClosable: true,
       });
 
-      // Do NOT close the form on error
     }
   };
 
@@ -119,7 +118,8 @@ const UserForm = ({ user, onSave, onCancel }) => {
           id="department"
           {...register("department", {
             required: "Department is required",
-            pattern: { value: /^[A-Za-z]{3,}$/, message: "Department should contain letters" }
+            pattern: { value: /^[A-Za-z]+$/,
+            message: "Department should contain letters" }
 
           })}
           placeholder="Department"
