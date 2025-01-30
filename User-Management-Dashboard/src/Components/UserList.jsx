@@ -20,29 +20,36 @@ import UserForm from "./UserForm";
 import { addUser, deleteUser, fetchUsers, updateUser } from "../api/userService";
 
 const UserList = () => {
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { showModal, onClose } = useModal();
-  const [update, setUpdate] = useState(true);
-  const isMobile = useBreakpointValue({ base: true, md: false });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const usersPerPage = 10;
+  const { showModal, onClose } = useModal(); // Modal context for showing and closing modals
+  const [update, setUpdate] = useState(true); // State to trigger re-fetching of users after updates
+  const isMobile = useBreakpointValue({ base: true, md: false }); // To check for mobile screen size
+  const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
+  const [totalUsers, setTotalUsers] = useState(0); // Total number of users
+  const usersPerPage = 10; // Number of users per page
 
+  // Chakra UI toast for notifications
   const toast = useToast();
 
+  // Fetch users when component mounts or when the page changes
   useEffect(() => {
     const loadUsers = async () => {
       setLoading(true);
       const usersData = await fetchUsers(currentPage, usersPerPage);
-      setTotalUsers(() => parseInt(usersData.items))
+
+      // Set total users for pagination
+      setTotalUsers(() => parseInt(usersData.items));
+
+      // Set the fetched users
       setUsers(usersData.data);
       setLoading(false);
     };
     loadUsers();
   }, [update, currentPage]);
 
-
+  // Handle user deletion with confirmation modal
   const handleDelete = (id) => {
     showModal({
       heading: "Confirm Deletion",
@@ -53,8 +60,7 @@ const UserList = () => {
           colorScheme: "red",
           onClick: async () => {
             try {
-              await deleteUser(id);
-
+              await deleteUser(id); // Call the delete user API
               toast({
                 title: "User Deleted",
                 description: "The user has been deleted successfully.",
@@ -63,7 +69,8 @@ const UserList = () => {
                 isClosable: true,
               });
 
-              setUpdate((prev) => !prev); 
+              // Trigger re-fetching after deletion
+              setUpdate((prev) => !prev);
             } catch (error) {
               toast({
                 title: "Error",
@@ -74,6 +81,8 @@ const UserList = () => {
               });
             }
           },
+
+          // Close modal on button click
           closeOnClick: true,
         },
         {
@@ -86,7 +95,7 @@ const UserList = () => {
     });
   };
 
-
+  // Handle user editing
   const handleEdit = (user) => {
     showModal({
       heading: "Edit User",
@@ -100,13 +109,10 @@ const UserList = () => {
           onCancel={onClose}
         />
       ),
-
     });
-
   };
 
-
-
+  // Handle adding a new user
   const handleAddUser = () => {
     showModal({
       heading: "Add User",
@@ -123,13 +129,12 @@ const UserList = () => {
         />
       ),
     });
-
-
   };
 
-  const totalPages = Math.ceil(totalUsers / usersPerPage);
-  const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  // Pagination logic
+  const totalPages = Math.ceil(totalUsers / usersPerPage); // Calculate total pages
+  const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1)); // Go to previous page
+  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages)); // Go to next page
 
   return (
     <Box
@@ -143,10 +148,12 @@ const UserList = () => {
       flexDirection="column"
       justifyContent="flex-start"
     >
+      {/* Button to trigger adding a new user */}
       <Button colorScheme="blue" onClick={handleAddUser} mb={4}>
         Add User
       </Button>
 
+      {/* Table for displaying users */}
       <Box
         maxHeight="calc(100vh - 210px)"
         overflowY="auto"
@@ -167,6 +174,7 @@ const UserList = () => {
 
           <Tbody>
             {loading ? (
+              // Show skeleton loaders while loading data
               Array.from({ length: 10 }).map((_, index) => (
                 <Tr key={index}>
                   <Td><Skeleton height="20px" /></Td>
@@ -178,6 +186,7 @@ const UserList = () => {
                 </Tr>
               ))
             ) : (
+              // Show users in the table after data is loaded
               users.map((user, index) => (
                 <Tr key={user.id} bg={index % 2 === 0 ? "gray.100" : "white"}>
                   <Td>{user.id}</Td>
@@ -186,6 +195,7 @@ const UserList = () => {
                   <Td>{user.email}</Td>
                   <Td>{user.department || "No Department"}</Td>
                   <Td>
+                    {/* Buttons for editing and deleting users */}
                     <IconButton
                       icon={<EditIcon />}
                       aria-label="Edit"
@@ -207,6 +217,7 @@ const UserList = () => {
         </Table>
       </Box>
 
+      {/* Pagination controls */}
       <Flex justify="center " align="center" mt={4} gap={5}>
         <IconButton
           icon={<ChevronLeftIcon />}

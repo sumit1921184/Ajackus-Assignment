@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import React, { useEffect } from "react";
-import { Input, FormLabel, FormControl, FormErrorMessage, Button, Flex, Box, useToast, useModal } from "@chakra-ui/react";
+import { Input, FormLabel, FormControl, FormErrorMessage, Button, Flex, Box, useToast } from "@chakra-ui/react";
 
 
 const UserForm = ({ user, onSave, onCancel }) => {
@@ -15,19 +15,25 @@ const UserForm = ({ user, onSave, onCancel }) => {
 
   const toast = useToast();
 
+  // useEffect for setting form data or resetting form when user prop changes
   useEffect(() => {
     if (user) {
+
+      // Pre-fill the form with the existing user data if available
       setValue("firstName", user.firstName);
       setValue("lastName", user.lastName);
       setValue("email", user.email);
       setValue("department", user.department || "");
     } else {
+
+      // Reset form if no user is provided
       reset();
     }
   }, [user, setValue, reset]);
 
   const onSubmit = async (data) => {
     try {
+      // Attempt to save the user data
       await onSave(data);
 
       toast({
@@ -38,10 +44,10 @@ const UserForm = ({ user, onSave, onCancel }) => {
         isClosable: true,
       });
 
-      // Delay closing form slightly to allow toast to appear first
+      // Delay closing the form slightly to show the toast first
       setTimeout(() => {
-        reset(); // Reset the form
-        onCancel(); // Close the form
+        reset();
+        onCancel();
       }, 500);
 
     } catch (error) {
@@ -50,9 +56,11 @@ const UserForm = ({ user, onSave, onCancel }) => {
       let errorMessage = "Something went wrong. Please try again.";
 
       if (error.response && error.response.data && error.response.data.message) {
-        errorMessage = error.response.data.message; // Show server error message
+        // If server returns a specific error message, use it
+        errorMessage = error.response.data.message;
       }
 
+      // Show error message in a toast
       toast({
         title: "Error",
         description: errorMessage,
@@ -64,19 +72,17 @@ const UserForm = ({ user, onSave, onCancel }) => {
     }
   };
 
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
 
+      {/* First Name Input */}
       <FormControl isInvalid={!!errors.firstName} mb={4}>
-
         <FormLabel htmlFor="firstName">First Name</FormLabel>
         <Input
           id="firstName"
           {...register("firstName", {
             required: "First Name is required",
             pattern: { value: /^[A-Za-z]{3,}$/, message: "First Name should contain letters and at least three letters" }
-
           })}
           placeholder="First Name"
         />
@@ -84,6 +90,7 @@ const UserForm = ({ user, onSave, onCancel }) => {
       </FormControl>
 
 
+      {/* Last Name Input */}
       <FormControl isInvalid={!!errors.lastName} mb={4}>
         <FormLabel htmlFor="lastName">Last Name</FormLabel>
         <Input
@@ -98,6 +105,7 @@ const UserForm = ({ user, onSave, onCancel }) => {
       </FormControl>
 
 
+      {/* Email Input */}
       <FormControl isInvalid={!!errors.email} mb={4}>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input
@@ -112,15 +120,14 @@ const UserForm = ({ user, onSave, onCancel }) => {
       </FormControl>
 
 
+      {/* Department Input */}
       <FormControl isInvalid={!!errors.department} mb={4}>
         <FormLabel htmlFor="department">Department</FormLabel>
         <Input
           id="department"
           {...register("department", {
             required: "Department is required",
-            pattern: { value: /^[A-Za-z]+$/,
-            message: "Department should contain letters" }
-
+            pattern: { value: /^[A-Za-z]+$/, message: "Department should contain letters" }
           })}
           placeholder="Department"
         />
@@ -128,10 +135,17 @@ const UserForm = ({ user, onSave, onCancel }) => {
       </FormControl>
 
 
+      {/* Form Action Buttons */}
       <Flex mt={4} justify="flex-end">
         <Box mr={4}>
-          <Button colorScheme="gray" onClick={() => { reset(); onCancel(); }}>Cancel</Button>
+
+          {/* Cancel Button */}
+          <Button colorScheme="gray" onClick={() => { reset(); onCancel(); }}>
+            Cancel
+          </Button>
         </Box>
+
+        {/* Save Button */}
         <Button colorScheme="blue" type="submit" isDisabled={Object.keys(errors).length > 0}>
           Save Changes
         </Button>

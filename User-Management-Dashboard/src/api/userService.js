@@ -1,6 +1,6 @@
 const API_URL = "https://user-json-aa7y.onrender.com/users";
 
-
+//Function to fetch users with pagination
 export const fetchUsers = async (page = 1, limit = 10) => {
   try {
     const response = await fetch(`${API_URL}?_page=${page}&_per_page=${limit}`);
@@ -17,7 +17,7 @@ export const fetchUsers = async (page = 1, limit = 10) => {
   }
 };
 
-
+//Function to add users 
 export const addUser = async (user) => {
   try {
     const response = await fetch(API_URL, {
@@ -40,7 +40,7 @@ export const addUser = async (user) => {
   }
 };
 
-
+//Function to update users
 export const updateUser = async (id, user) => {
   try {
     const response = await fetch(`${API_URL}/${id}`, {
@@ -64,7 +64,7 @@ export const updateUser = async (id, user) => {
   }
 };
 
-
+//Function to delete users
 export const deleteUser = async (id) => {
   try {
     const response = await fetch(`${API_URL}/${id}`, {
