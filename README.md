@@ -1,8 +1,9 @@
-
-# User Management Application
+# [User Management Application](https://ajackus-assignment-nu.vercel.app/)
 
 This is a user management application built with React, Chakra UI, and integrated with an API to handle user operations. It supports features such as adding, editing, deleting, and paginating users. The app also includes form validation, confirmation modals, and toast notifications to indicate success or failure of operations.
 
+## Deployed Link
+[User Management Application](https://ajackus-assignment-nu.vercel.app/)
 ## Features
 
 - **Pagination**: Displays users in pages (10 per page) with navigation options to go to the next or previous page.
