@@ -70,14 +70,15 @@ const UserForm = ({ user, onSave, onCancel }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
 
       <FormControl isInvalid={!!errors.firstName} mb={4}>
-        
+
         <FormLabel htmlFor="firstName">First Name</FormLabel>
         <Input
           id="firstName"
-          {...register("firstName", { required: "First Name is required",
-            pattern:{value:/^[A-Za-z]{3,}$/, message:"First Name should contain letters and at least three letters"}
+          {...register("firstName", {
+            required: "First Name is required",
+            pattern: { value: /^[A-Za-z]{3,}$/, message: "First Name should contain letters and at least three letters" }
 
-           })}
+          })}
           placeholder="First Name"
         />
         <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
@@ -88,9 +89,10 @@ const UserForm = ({ user, onSave, onCancel }) => {
         <FormLabel htmlFor="lastName">Last Name</FormLabel>
         <Input
           id="lastName"
-          {...register("lastName", { required: "Last Name is required",
-            pattern:{value:/^[A-Za-z]{3,}$/, message:"Last Name should contain letters and at least three letters"}
-           })}
+          {...register("lastName", {
+            required: "Last Name is required",
+            pattern: { value: /^[A-Za-z]{3,}$/, message: "Last Name should contain letters and at least three letters" }
+          })}
           placeholder="Last Name"
         />
         <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
@@ -115,10 +117,11 @@ const UserForm = ({ user, onSave, onCancel }) => {
         <FormLabel htmlFor="department">Department</FormLabel>
         <Input
           id="department"
-          {...register("department", { required: "Department is required",
-            pattern:{value:/^[A-Za-z]{3,}$/, message:"Department should contain letters"}
+          {...register("department", {
+            required: "Department is required",
+            pattern: { value: /^[A-Za-z]{3,}$/, message: "Department should contain letters" }
 
-           })}
+          })}
           placeholder="Department"
         />
         <FormErrorMessage>{errors.department?.message}</FormErrorMessage>

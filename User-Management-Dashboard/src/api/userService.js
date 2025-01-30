@@ -34,7 +34,6 @@ export const addUser = async (user) => {
 
     const data = await response.json();
     return data;
-    console.log("user added", data);
   } catch (error) {
     console.error("Error adding user:", error);
     throw error;  

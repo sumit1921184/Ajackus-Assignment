@@ -29,7 +29,8 @@ const UserList = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const usersPerPage = 10;
 
-  const toast = useToast()
+  const toast = useToast();
+
   useEffect(() => {
     const loadUsers = async () => {
       setLoading(true);
@@ -62,7 +63,7 @@ const UserList = () => {
                 isClosable: true,
               });
 
-              setUpdate((prev) => !prev); // Refresh the list
+              setUpdate((prev) => !prev); 
             } catch (error) {
               toast({
                 title: "Error",
@@ -127,7 +128,6 @@ const UserList = () => {
   };
 
   const totalPages = Math.ceil(totalUsers / usersPerPage);
-
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
