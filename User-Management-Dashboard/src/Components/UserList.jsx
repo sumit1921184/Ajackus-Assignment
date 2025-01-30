@@ -136,7 +136,7 @@ const UserList = () => {
       w="90vw"
       h="100vh"
       overflow="hidden"
-      m={4}
+      mt={4}
       p={4}
       boxSizing="border-box"
       display="flex"
@@ -148,7 +148,7 @@ const UserList = () => {
       </Button>
 
       <Box
-        maxHeight="calc(100vh - 200px)"
+        maxHeight="calc(100vh - 210px)"
         overflowY="auto"
         border="1px solid #ddd"
         borderRadius="md"
